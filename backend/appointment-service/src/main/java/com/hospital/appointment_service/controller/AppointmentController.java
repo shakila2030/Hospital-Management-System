@@ -25,10 +25,6 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
-    @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPatientId(@PathVariable Long patientId) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByPatientId(patientId));
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteAppointment(@PathVariable Long id) {
