@@ -1,6 +1,10 @@
 package com.hospital.appointment_service.service;
 
+import com.hospital.appointment_service.client.DoctorClient;
+import com.hospital.appointment_service.client.PatientClient;
 import com.hospital.appointment_service.dto.AppointmentDTO;
+import com.hospital.appointment_service.dto.DoctorDTO;
+import com.hospital.appointment_service.dto.PatientDTO;
 import com.hospital.appointment_service.entity.Appointment;
 import com.hospital.appointment_service.exception.ResourceNotFoundException;
 import com.hospital.appointment_service.repository.AppointmentRepository;
@@ -15,38 +19,40 @@ import java.util.stream.Collectors;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final PatientClient patientClient;
+    private final DoctorClient doctorClient;
 
     @Override
     public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO) {
-        Appointment appointment = Appointment.builder()
-                .date(appointmentDTO.getDate())
-                .time(appointmentDTO.getTime())
-                .patientId(appointmentDTO.getPatientId())
-                .doctorId(appointmentDTO.getDoctorId())
-                .build();
+        // Fetch patient and doctor details
+        PatientDTO patient = patientClient.getPatientById(appointmentDTO.getPatientId());
+        DoctorDTO doctor = doctorClient.getDoctorById(appointmentDTO.getDoctorId());
 
-        Appointment savedAppointment = appointmentRepository.save(appointment);
-        return convertToDTO(savedAppointment);
+        if (patient == null || doctor == null) {
+            throw new RuntimeException("Patient or Doctor not found");
+        }
+
+        Appointment appointment = new Appointment();
+        appointment.setPatientId(appointmentDTO.getPatientId());
+        appointment.setDoctorId(appointmentDTO.getDoctorId());
+        appointment.setDate(appointmentDTO.getDate());
+        appointment.setTime(appointmentDTO.getTime());
+
+        appointment = appointmentRepository.save(appointment);
+        return new AppointmentDTO(appointment);
     }
 
     @Override
     public AppointmentDTO getAppointmentById(Long id) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + id));
-        return convertToDTO(appointment);
+        Appointment appointment = appointmentRepository.findById(id).orElseThrow();
+        return new AppointmentDTO(appointment);
     }
 
-    @Override
-    public List<AppointmentDTO> getAppointmentsByPatientId(Long patientId) {
-        List<Appointment> appointments = appointmentRepository.findByPatientId(patientId);
-        return appointments.stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
+
 
     @Override
     public void deleteAppointment(Long id) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + id));
-        appointmentRepository.delete(appointment);
+        appointmentRepository.deleteById(id);
     }
 
     private AppointmentDTO convertToDTO(Appointment appointment) {
