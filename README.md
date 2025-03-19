@@ -10,13 +10,13 @@ Welcome to the **Hospital Management System** project! This application is built
 The system leverages **Eureka Server** for **service discovery**, ensuring that microservices can communicate with each other seamlessly. Each microservice operates independently, which makes it easy to scale and maintain.
 
 ---
-
 ## ⚙️ Technologies Used:
-- **Spring Boot** 🚀
-- **Eureka Server** 🔍
-- **Microservices Architecture** 🏗️
-- **MySQL** for Data Persistence 💾
-- **RESTful APIs** 🌐
+- *Spring Boot* 🚀
+- *Eureka Server* 🔍
+- *Feign* for Inter-Service Communication 🔗
+- *Microservices Architecture* 🏗️
+- *MySQL* for Data Persistence 💾
+- *RESTful APIs* 🌐
 
 ---
 
